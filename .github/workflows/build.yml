@@ -28,13 +28,20 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y openjdk-11-jdk openjdk-11-jre
-        sudo apt-get install -y android-sdk
+    
+    - name: Accept Android licenses
+      run: |
+        mkdir -p ~/.android
+        echo "### User Sources for Android SDK Manager" > ~/.android/repositories.cfg
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
     
     - name: Build APK
       run: |
         buildozer android debug
+      timeout-minutes: 60
     
     - name: Upload APK artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: proeco-diagnostics-apk
